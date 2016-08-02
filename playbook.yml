@@ -1,0 +1,21 @@
+# ---
+# - name: Configure Jenkins + JJB + HAProxy
+
+- hosts: localhost
+  vars:
+    haproxy_frontend_name: 'http'
+    haproxy_frontend_bind_address: '*'
+    haproxy_frontend_port: 80
+    haproxy_frontend_mode: 'http'
+    haproxy_backend_name: 'jenkins'
+    haproxy_backend_mode: 'http'
+    haproxy_backend_balance_method: 'roundrobin'
+    haproxy_backend_httpchk: 'HEAD /login HTTP/1.1\r\nHost:localhost'
+    jenkins_admin_username: admin
+    jenkins_admin_password: correct_horse_battery_staple
+    haproxy_backend_servers:
+      - name: localhost
+        address: 127.0.0.1:8080
+  roles:
+    - geerlingguy.jenkins
+    - geerlingguy.haproxy

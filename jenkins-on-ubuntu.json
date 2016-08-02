@@ -1,0 +1,59 @@
+{
+    "variables": {
+        "hostname": "jenkins",
+
+        "iso": "/home/tim/Downloads/xenial-server-cloudimg-amd64-disk1.img",
+        "checksum": "52e0277b1800ccc96df77dc6ef7afcfa",
+        "version-number": "16.06",
+        "version-name": "xenial",
+
+        "username": "ubuntu",
+        "password": "packer"
+    },
+    "builders": [
+        {
+            "type": "qemu",
+            "iso_url": "{{user `iso` }}",
+            "disk_image": "true",
+            "iso_checksum": "{{user `checksum` }}",
+            "iso_checksum_type": "md5",
+            "output_directory": "output/{{user `hostname`}}-kvm",
+            "ssh_wait_timeout": "30s",
+            "shutdown_command": "sudo shutdown -P now",
+            "disk_size": 20000,
+            "format": "qcow2",
+            "headless": true,
+            "accelerator": "kvm",
+            "ssh_host_port_min": 2222,
+            "ssh_host_port_max": 2229,
+            "ssh_username": "{{user `username`}}",
+            "ssh_password": "{{user `password`}}",
+            "ssh_port": 22,
+            "ssh_wait_timeout": "90m",
+            "vm_name": "{{user `hostname`}}",
+            "net_device": "virtio-net",
+            "disk_interface": "virtio",
+            "qemuargs": [
+                [ "-fda", "ubuntu-cloudinit-data.img" ],
+                [ "-serial", "file:/tmp/jenkins-on-ubunut-console.txt" ],
+                [ "-boot", "menu=on" ]
+            ]
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "ubuntu-bootstrap.sh"
+        },
+        {
+            "type": "shell",
+            "script": "ansible-bootstrap.sh"
+        },
+        {
+            "type": "ansible-local",
+            "command": "sudo -i ansible-playbook",
+            "playbook_file": "playbook.yml"
+        }
+
+    ]
+}

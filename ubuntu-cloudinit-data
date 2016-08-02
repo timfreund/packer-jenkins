@@ -1,0 +1,5 @@
+#cloud-config
+ssh_import_id: [timfreund]
+password: packer
+chpasswd: { expire: False }
+ssh_pwauth: True
